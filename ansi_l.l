@@ -1,3 +1,4 @@
+;; backup is in ~/emacs-backups && talkgen gitlab account
 ;; *chapter 1*
 ;; //check out errata of book on completing the book
 ;; //check out books on functional programming
