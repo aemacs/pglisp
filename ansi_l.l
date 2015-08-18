@@ -545,4 +545,62 @@ count))
 	    (summit (cdr lst)))
 	(+ x (summit (cdr lst))))))
 
+;;chapter 3 starts
+consp nil
+consp ()
+(consp 'a)
+(consp '(a))
+(consp(cons 'a nil))
+;; any list can be considered as car + cdr
+(defun our-listp(x)
+  (or (null x) (consp x)))
+(listp nil)
+(atom nil)
+(typep nil 'atom)
+(typep nil 'list)
+(consp nil)
+(defun our-atom(x)
+  (not (consp x)))
+;;equality
+(cons 'a nil)
+(eql (cons 'a nil) (cons 'a nil))
+(setf x (cons 'a nil))
+x
+(eql x x)
+(eql x (cons 'a nil))
+;; eql vs equal
+(equal x (cons 'a nil))
+
+(defun our-equal-forLists (x y)
+  (or (eql x y)
+      (and (consp x)
+	   (consp y)
+	   (our-equal (car x) (car y))
+	   (our-equal (cdr x) (cdr y)))))
+
+;; no pointers
+(setf x '(a b c))
+(setf y x)
+(eql x y)
+(setf (car y) 'e)
+x
+(setf y (copy-list x))
+(setf (car y) 'f)
+x
+y
+;;building lists
+
+
+
+
+      
+
+
+
+
+
+
+
+
+
 
