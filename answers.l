@@ -11,7 +11,8 @@ good LISP tutorial. The book provide several practices at the end of
 each chapter. But, there is no answer, unfortunately.
 
 I wrote answers for them to encourage you to solve the questions in the
-book. If any problem, please contact me /(takafumi@shido.info)/.
+book.
+    If any problem, please contact me /(takafumi@shido.info)/.
 
 
     1. Contents

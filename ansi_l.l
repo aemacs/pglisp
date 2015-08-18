@@ -4,6 +4,7 @@
 ;; //check out books on functional programming
 ;; //check out books on lambda calculus
 
+
 (defun sum (n)
   (let ((s 0))
   (dotimes (i n s)
@@ -297,7 +298,7 @@ x
 lst
 ;;non functional way, avoid
 (setf newlst (remove 'a lst) )
-
+newlst
 ;;iteration;;
 
 (defun show-squares (start end)
@@ -325,9 +326,8 @@ lst
     )
 
 (do ((i 1 (+ i 1)))
-    ((eql i 5) i) ;can end loop by returning a value as well
-  ;; in fact earlier we stopped by returning a symbol
-  ;; returning something will stop a loop?
+    ((eql i 5) i) ;;endlist contains what to do after loopend   condition is true (()) <- min braces in endlist is 2
+  ;; returning something will stop a loop? no!!
   (format t "hello  "))
 
 (defun show-cubes (start end)
@@ -353,7 +353,7 @@ lst
 ;;iterate elements of a list
 (defun our-length (lst)
   (let ((len 0))
-    (dolist (obj lst)
+    (dolist (obj lst) ; obj carries the temp item from lst each loop
       (setf len (+ len 1)))
     len))
 (our-length '(a n o o p gr))
@@ -418,6 +418,7 @@ lst
 (typep + 'real)
 (typep + 'atom)
 
+
 ;; chap 2 exercise:
 (list 1 (+ 2 3))
 (list nil 3)
@@ -434,7 +435,114 @@ lst
       x
       y))
 (greater 33 9)
+'(nil a)
+(null (car '(nil a)))
 
+(defun enigma (x)
+  (and (not (null x))
+       (or (null (car x))
+	   (enigma (cdr x)))))
+(enigma '(a b c))
+(enigma '(a b nil))
+(enigma '())
+(enigma '(nil a b))
 
+x=a
+y=(n o o p a)
+
+mys a (n o o p a)
+if nil
+    nil
+    if eql n a
+       0
+
+       let z=mys a (o o p a)
+       z+1
+
+car
+or
+(apply #'list 1 nil)
+
+(defun element-list (lst)
+  (let ((element "false"))
+  (dolist (obj lst)
+    (if (listp obj)
+	(setf element "true")))
+  element))
+
+(defun element-list (lst)
+  (let ((element 'false))
+  (dolist (obj lst)
+    (if (listp obj)
+	(setf element 'true)))
+  element))
+
+(element-list '('(n o op) g r '(t r u e)))
+(element-list '(a n o o p))
+(listp '(anoop))
+(listp 'a)
+(let ((element 'false)))
+element
+
+(defun dot-print (num)
+  (format t ".")
+  (setf num (- num 1))
+    (if (> num 0)
+      (dot-print num))
+  'end)
+(dot-print 9)
+
+(defun dot-print (num)
+  (do ((i num (- i 1)))
+      ((eql i 0) 'done)
+    (format t ".")))
+(dot-print 89)
+
+(defun occur-count (test lst)
+  (let ((count 0))
+    (dolist (obj lst)
+    (if (eql test obj)
+	(setf count (+ count 1))))
+count))
+
+(occur-count 'o '(a n o o p))
+(occur-count 'a '(a n o o p))
+
+;;recursive
+(setf count 0)
+(defun occur-count (test lst)
+
+    (if (eql test (car lst))
+	(progn(setf count (+ count 1))))
+    (if (null (car lst))
+	count
+	(occur-count test (cdr lst))))
+
+;; better recursive
+(defun occur-count (test lst)
+    (if (null (car lst))
+	0
+	(+     (if (eql test (car lst))
+		   1
+		   0)
+	       (occur-count test (cdr lst)))))
+(defun summit (lst)
+  (remove nil lst)
+  (apply #'+ lst))
+(summit '(1 1 1 3 3))
+(summit '(1 1 1 nil 3))
+
+(remove nil '( 1 1 1 nil 3))
+
+(defun summit (lst)
+  (apply #'+(remove nil lst)))
+
+(defun summit (lst)
+  (let ((x (car lst)))
+    (if (null x)
+	(if (eql nil (cdr lst))
+	    0
+	    (summit (cdr lst)))
+	(+ x (summit (cdr lst))))))
 
 
