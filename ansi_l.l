@@ -52,16 +52,16 @@ a
 ()
 nil 
 (nil)
-;; this is a mistake why?
+;; this is a mistake why? nil is evaled as a function,so...
 ;; note list itself should not be called as bracket 
 (list ('I 'am (+ 18 3) 'years 'old))
-;; the mistake is the un-nessesary bracketing?
+;; the mistake is the un-nessesary bracketing? yes
 ;;cons builds lists, adds first argument at the beginning
 (cons 'a '(b c d))
 (cons "hello" "world")
 ;;why the dot on evaluation?
 (cons ('a cons('b cons('c cons('d nil)))))
-;; error is that there un-nessesary bracketing?
+;; error is that there un-nessesary bracketing? yes improper bracketing as well
 (cons 'b (cons 'a nil))
 (cons 'b '(a))
 (cons 'b 'a)
@@ -76,12 +76,14 @@ nil
 (third '(a b c d))
 (fourth '(a b c d))
 (fifth '(a b c d))
+(twentieth '(a b c d))
 t
 f 
 ;; only t is bound , f is unbound
 ;; falsity is returned as nil
 ;; true false functions are called predicates
 ;; listp is one such predicate, predicates often have names ending in *p
+;; atom is also a predicate
 (listp '(a b c))
 (listp(cons "hello" "world"))
 (listp '("anoop" "gr"))
@@ -97,9 +99,9 @@ nil
 ;; nil plays 2 roles
 ;; null returns true if empty
 (null nil)
-;;here nil represents empty list
+;;in above nil represents empty list
 (not nil)
-;; here nil represents falsity
+;;above here nil represents falsity
 
 ;;conditionals:
 ;if:
@@ -112,11 +114,7 @@ nil
     '(she is interesting)
     )
 
-(if (listp "she has an MBA")
-    "not my type"
-    "she is interesting")
-
-(if (listp "she has an MBA")
+(if (listp "she is not an MBA")
     "not my type"
     "she is interesting")
 
@@ -158,7 +156,7 @@ nil
 (or nil ())
 ;; if first arg is true, second is not evaled
 (or t (/ 0 0))
-(or nil (/ 0 0))
+(or nil (/ 0 0)) ;; talkgen
 ;;and & or are implemented as macros
 ;;macros can break eval rule, they are special operators like '
 
@@ -204,7 +202,11 @@ x
   (if (eql (car lst) obj)
       lst
       (our-member obj (cdr lst)))))
-(our-member 'k '(a n o o p))
+(our-member 'a '(a n o o p))
+(our-member 'p '(a n o o p))
+(our-member 'o '(a n o o p))
+
+
 ;;need to learn sublime text like multiple cursors
 
 ;;input output
@@ -569,6 +571,8 @@ x
 (eql x x)
 (eql x (cons 'a nil))
 ;; eql vs equal
+;; eql for lists means same list and same cons
+;; equal for lists means same print outputs
 (equal x (cons 'a nil))
 
 (defun our-equal-forLists (x y)
@@ -580,6 +584,7 @@ x
 
 ;; no pointers
 (setf x '(a b c))
+;; same element and same conses
 (setf y x)
 (eql x y)
 (setf (car y) 'e)
@@ -588,12 +593,182 @@ x
 (setf (car y) 'f)
 x
 y
-;;building lists
+;;3.4 building lists
+;; same elements but new conses
+(setf x '(a b c)
+      y (copy-list x))
+(eql x y)
+y
+(setf z '(a b c))
+(setf (car z) 'e)
+z
+y
+(atom 'a)
+(atom a)
+(cons 'a '(b))
+(consp '(a g))
+(defun our-copylist (lst)
+  (if (atom lst)
+      lst
+      (cons (car lst) (our-copylist (cdr lst)))))
+
+(setf x '(a b c)
+      y (our-copylist x))
+y
+(eql x y)
+;; append
+(append 'a 'n 'o 'o 'p)
+(append 'a '(n o o p))
+;; all should be lists
+(append '(a n) '(o o) '(p))
+
+;; 3.5 compression, run length encoding
+(list 3 'a)
+
+(defun n-elts (n elt)
+  (if (> n 1)
+      (list n elt)
+      elt))
+(defun compr (n elt lst)
+  (if (null lst)
+      (list (n-elts n elt))
+      (let ((next (car lst)))
+	(if (eql next elt)
+	    (compr (+ n 1) elt (cdr lst))
+	    (cons (n-elts n elt)
+		  (compr 1 next (cdr lst)))))))
+(defun compress (x)
+  (if (consp x)
+      (compr 1 (car x) (cdr x))
+      x))
+(compress 'a)
+(compress '(a a a c f d d d))
+
+
+;; my akward implementation
+(defun recur-check (lst count)
+  (let ((next (car lst)))
+    (if (null lst)
+	(list(build count now))
+	(if (eql next now)
+	    (recur-check (cdr lst) (+ count 1) now)
+	    (build count now)))))
+(recur-check '(a n o o p) 1 'a)
+
+(defun build (n atom)
+  (if (> n 1)
+      (list n atom)
+      atom))
+(build 1 'd)
+(build 3 's)
+
+(defun compr (lst count)
+  (let ((next (car (cdr lst))))
+    (if (null next)
+	(list (build count (car lst)))
+	(if (eql (car lst) next)
+	    (compr (cdr lst) (+ count 1))
+	    (cons (build count (car lst)) (compr (cdr lst) 1))))))
+
+(compr '(a a a c d) 1)
+(compr '(a a a c c d d d) 1)
+(compr '(a) 1)
+(compr 'a) ;; bug
+(defun compress (lst)
+  compr (lst 1))
+(consp '(a))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; retry run length compression
+(defun build (n atom)
+  (if (> n 1)
+      (list n atom)
+      atom))
+(build 2 'a)
+(build 1 'a)
+
+(defun compr (lst count)
+  (let ((first (car lst)) (second (car (cdr lst))))
+    (if (null second)
+	(list (build count first))
+	(if (eql first second)
+	    (compr (cdr lst) (+ count 1))
+	    (progn (format t "~A ~%" lst)
+		   (cons (build count first) (compr (cdr lst) 1))))))
+  (format t "~%but here list remains unaltered, i e functional approach ~A" lst))
+(compr '(a a a b c d d) 1)
+(cons 'a '(b))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; textbook style copycat
+
+(defun n-elts (elt n)
+  (if (> n 1)
+      (list n elt)
+      elt))
+(defun compr (elt n lst)
+  (if (null lst)
+      (list (n-elts elt n))
+      (let ((next (car lst)))
+	(if (eql next elt)
+	    (compr elt (+ n 1) (cdr lst))
+	    (cons (n-elts elt n)
+		  (compr next 1 (cdr lst)))))))
+(defun compress (x)
+  (if (consp x)
+      (compr (car x) 1 (cdr x))
+      x))
+(compress 'a)
+(compress '(a a a c f d d d))
+
+;; uncompress
+(atom (car (compress '(a a a c f d d d))))
+(atom 'd)
+
+;; uncompress anoop version, its not purely functional
+;;  as base is getting modified??
+(defun ncons (times atom)
+  (let ((base nil))
+    (do ((i 1 (+ i 1)))
+	((> i times))
+;;      (format t "~Ahello " i)
+      (setf base (cons atom base)))
+    base))
+ 
+(ncons 4 'a)
+
+(defun uncompress (clst)
+  (do ((first (car clst)))
+      ((null first) 'donebaby)
+    (if (atom (car clst))
+	(setf base (cons first (uncompress (cdr clst))))
+	)))
+
+
+(defun uncompress (clst)
+  (setf first (car clst))
+  (if (null first) base)
+  (setf base (cons first (uncompress (cdr clst)))))
+  ;;return appro)
+(uncompress '(a e))
+
+(format t "hello anoop~%")
+;;Fri Aug 28 16:11:43 IST 2015
+;; back to textbook, page 38
 
 
 
 
-      
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
