@@ -156,7 +156,7 @@ nil
 (or nil ())
 ;; if first arg is true, second is not evaled
 (or t (/ 0 0))
-(or nil (/ 0 0)) ;; talkgen
+(or nil (/ 0 0)) ;;
 ;;and & or are implemented as macros
 ;;macros can break eval rule, they are special operators like '
 
@@ -171,7 +171,7 @@ nil
   (car(cdr(cdr x))))
 (our-third '(a b c d))
 ;; in above defun (x) is a list. how?
-
+;;talkgen
 ;; //"Object-Oriented Programming in Common Lisp: A Programmer's Guide to CLOS" by Sonya E. Keene, is the best book on CLOS.
 
 
@@ -392,15 +392,6 @@ newlst
 ((lambda (x y); notice x y are bracketed
    (+ x y)) 68 1)
 
-;; doubt ????:
-;;   (lambda (x y); notice x y are bracketed
-;;       (+ x y))
-;;   (funcall #'(lambda (x y)) '2 '3)
-;;   (progn
-;;     (setf g ((lambda (x) (y)) 2 3))
-;;     (format t "~A" g)
-;;     'prognends)
-
 ((lambda (x) (+ x 100)) 1)
 
 (funcall #'(lambda (x) (+ x 100))
@@ -546,8 +537,8 @@ count))
 	    0
 	    (summit (cdr lst)))
 	(+ x (summit (cdr lst))))))
-
-;;chapter 3 starts
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;chapter 3 starts: Lists
 consp nil
 consp ()
 (consp 'a)
@@ -607,13 +598,13 @@ y
 (atom a)
 (cons 'a '(b))
 (consp '(a g))
-(defun our-copylist (lst)
+(defun our-copy-list (lst)
   (if (atom lst)
       lst
       (cons (car lst) (our-copylist (cdr lst)))))
 
-(setf x '(a b c)
-      y (our-copylist x))
+(setf x '(a b c d)
+      y (our-copy-list x))
 y
 (eql x y)
 ;; append
@@ -749,13 +740,71 @@ y
   (setf base (cons first (uncompress (cdr clst)))))
   ;;return appro)
 (uncompress '(a e))
+(append '(a a a) '(c d))
+;; lets try compress uncompress my own one more time
+;;Sat Aug 29 22:27:42 IST 2015
+(defun ncons2 (lst)
+  (let ((base nil))
+    (do ((i 1 (+ i 1)))
+	((> i (car lst)))
+      (setf base (cons (second lst) base))
+      )
+    base))
+(ncons2 '(3 a))
+(defun uncompress (clst)
+  (if (consp clst)
+      (if (consp (car clst))
+	  (append (ncons2 (car clst)) (uncompress (cdr clst)))
+	  (cons (car clst) (uncompress (cdr clst)))
+	  )
+      clst))
+(uncompress '((2 a) b))
+;; back to textbook
+(nth 1 '(a n o o p))
+(nthcdr 1 '(a n o o p))
+;; so cdr=nthcdr 1
+;; in lisp data structures are zero indexed, ie numbering  starts with 0 1 2 3 etc
 
-(format t "hello anoop~%")
-;;Fri Aug 28 16:11:43 IST 2015
-;; back to textbook, page 38
+;;Thu Sep  3 15:54:04 IST 2015
+;; 3.6 Access
+(nthcdr 3 '(a n o o p))
+(nth 0 '(a n o o p))
+;; define nthcdr
+(defun our-nthcdr (n lst)
+  (if (> n 0)
+      (our-nthcdr (- n 1) (cdr lst))
+      lst))
+(our-nthcdr 2 '(a n o p))
+(our-nthcdr 0 '(a n o p))
+(our-nthcdr 6 '(a n o p))
 
+(zerop 0)
 
+;; return last cons in a list:
+(last '(a n o o p))
+;; return last element of a list:
+(car (last '(a n o o p)))
 
+;; first, second, ... tenth:
+;;   they are not zero indexed
+(tenth '(1 2 3 4 5 6 7 8 9 10))
+(fifth '(1 2 3 4 5 6 7 8 9 10))
+
+(apply #'+ '(1 2 3))
+
+(format t "pay the price | ")
+;; end: Thu Sep  3 16:20:32 IST 2015
+
+;; start: Thu Sep  3 17:35:44 IST 2015
+;; mapping functions, calling on each and every member of a list
+;; this is different from applying in bulk together on all members using apply:
+(apply #'+ '(1 1 1))
+(apply #'(lambda (x) (+ x 10)) '(1))
+(mapcar #'(lambda (x) (+ x 10)) '(1 2 3))
+
+(list 'a 'b 'c)
+(list '(a b c) '(1 2 3))
+(mapcar #'list '(a b c) '(1 2 3))
 
 
 
