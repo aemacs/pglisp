@@ -77,6 +77,7 @@ nil
 (fourth '(a b c d))
 (fifth '(a b c d))
 (twentieth '(a b c d))
+;; only till tenth
 t
 f 
 ;; only t is bound , f is unbound
@@ -163,15 +164,13 @@ nil
 ;;functions
 (defun foo ())
 (list 'x)
-(x)
 '(x)
 (third '(a b c d))
 (cdr '(a b c d))
 (defun our-third (x)
   (car(cdr(cdr x))))
 (our-third '(a b c d))
-;; in above defun (x) is a list. how?
-;;talkgen
+
 ;; //"Object-Oriented Programming in Common Lisp: A Programmer's Guide to CLOS" by Sonya E. Keene, is the best book on CLOS.
 
 
@@ -194,7 +193,6 @@ x
 ;;unnessary bracketing
 ;;recursion - a function calling itself
 (eql 1 1)
-(== 2 2)
 
 (defun our-member (obj lst)
   (if (null lst)
@@ -207,7 +205,7 @@ x
 (our-member 'o '(a n o o p))
 
 
-;;need to learn sublime text like multiple cursors
+;;//need to learn sublime text like multiple cursors
 
 ;;input output
 ;;output -> format function
@@ -314,21 +312,9 @@ newlst
     ((eql i 5) 'donewithloop) ;endlist
   (format t "aaammm ~% "))
 
-;;doubt - debug below programme ????
-;; ????????????????????
-;;  trouble is that do syntax includes a first argument that
-;;   tests weather to reloop, no if needed there
 (do ((i 1 (+ i 1)))
-;;    (if (eql i 5)  ;; mistake here
-	;;(format t "end loop")
-	;;'done
-  	;;(format t "~A;;;" i)
-    ;;'done
-3
-    )
-
-(do ((i 1 (+ i 1)))
-    ((eql i 5) i) ;;endlist contains what to do after loopend   condition is true (()) <- min braces in endlist is 2
+    ((eql i 5) i)
+  ;;endlist contains what to return after end of iteration
   ;; returning something will stop a loop? no!!
   (format t "hello  "))
 
@@ -346,16 +332,18 @@ newlst
      'done))
 (show-cb 1 5)
 
-;;progn
+;;progn, returns value of last expression
 (progn
   (format t "~%~%takes any no. of expressions~%")
   (format t "evaluates in order, returns value of last exp")
   'progn_ends)
+;;prog1, returns value of 1st exp
 
 ;;iterate elements of a list
 (defun our-length (lst)
   (let ((len 0))
-    (dolist (obj lst) ; obj carries the temp item from lst each loop
+    (dolist (obj lst)
+      ;; obj carries the temp item from lst each loop
       (setf len (+ len 1)))
     len))
 (our-length '(a n o o p gr))
@@ -387,7 +375,7 @@ newlst
 (funcall #'+ 2 3 '(4))
 ;; lambda: used to call a function literally
 (lambda (x y); notice x y are bracketed
-   (+ x y))
+  (+ x y))
 
 ((lambda (x y); notice x y are bracketed
    (+ x y)) 68 1)
@@ -539,8 +527,8 @@ count))
 	(+ x (summit (cdr lst))))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;chapter 3 starts: Lists
-consp nil
-consp ()
+(consp nil)
+(consp ())
 (consp 'a)
 (consp '(a))
 (consp(cons 'a nil))
@@ -562,7 +550,7 @@ x
 (eql x x)
 (eql x (cons 'a nil))
 ;; eql vs equal
-;; eql for lists means same list and same cons
+;; eql for lists means same list and same cons???
 ;; equal for lists means same print outputs
 (equal x (cons 'a nil))
 
@@ -595,6 +583,7 @@ y
 z
 y
 (atom 'a)
+(boundp 'a)
 (atom a)
 (cons 'a '(b))
 (consp '(a g))
@@ -602,6 +591,7 @@ y
   (if (atom lst)
       lst
       (cons (car lst) (our-copylist (cdr lst)))))
+;;unlike our-copy-tree we only recurse operate on cdrs
 
 (setf x '(a b c d)
       y (our-copy-list x))
@@ -759,6 +749,7 @@ y
 	  )
       clst))
 (uncompress '((2 a) b))
+
 ;; back to textbook
 (nth 1 '(a n o o p))
 (nthcdr 1 '(a n o o p))
@@ -769,6 +760,7 @@ y
 ;; 3.6 Access
 (nthcdr 3 '(a n o o p))
 (nth 0 '(a n o o p))
+;; nth is like nthcar misnomer
 ;; define nthcdr
 (defun our-nthcdr (n lst)
   (if (> n 0)
@@ -801,24 +793,205 @@ y
 (apply #'+ '(1 1 1))
 (apply #'(lambda (x) (+ x 10)) '(1))
 (mapcar #'(lambda (x) (+ x 10)) '(1 2 3))
+(mapcar #'(lambda (x) x) '(1 2 3))
 
 (list 'a 'b 'c)
 (list '(a b c) '(1 2 3))
+;; as the name suggests mapcar -> map the cars
+;; mapcar 1 or more lists, returns result of applying function
+;; to elements taken from each list until some list runs out
 (mapcar #'list '(a b c) '(1 2 3))
 
+;; maplist -> map successive cdrs
+(maplist #'(lambda (x) x) '(1 2 3))
 
+;; mapc, mapcan - we will study later
 
+;; cons analogy to binary trees
+;;  car=left branch, cdr=right branch, mistake in book??
 
+;; copy tree copies a tree and returns a copy of it
+(let ((tr '(a (b c) d)))
+  (copy-tree tr))
 
+(defun our-copy-tree(tr)
+  (if (atom tr)
+      tr
+      (cons (our-copy-tree (car tr))
+	    (our-copy-tree (cdr tr)))))
+;; above recurses down both car and cdr
+;;  such functions are called doubly recursive
+;;  this is how most operations on lists are defined
 
+(let ((tr '(a (b c) (d e))))
+  (our-copy-tree tr))
+(our-copy-tree 'b)
+(our-copy-tree '(b))
+(cons 'a '(b))
 
+;; how is above different from our-copy-list??
+;; reread and understand page 41
+say list= (a (b c) d)
 
+copy-list:
+(cons 'A
+      (cons '(b c)
+	    (cons 'D
+		  'nil)))
+(our-copy-tree 'a)
+copy-tr:
+(cons 'a
+      (cons (cons 'b
+		  (cons 'c
+			'())
+		  )
+	    (cons 'd
+		  '())
+	    )
+      )
 
+;; start: Fri Sep  4 15:45:33 IST 2015
+;; copy-tree is more useful than copy-list
+;; copy-tree helps operate on a list and all lists within that list
+;;eg: how to substitute y for x in below line
+(and (integerp x) (zerop (mod x 2)))
 
+(substitute '- 'o '(a n o o p))
+(substitute '- 'o '(a n o o (o o p)))
 
+;;start: Sat Sep  5 12:13:20 IST 2015
+(substitute 'y 'x '(and (integerp x) (zerop (mod x 2))))
 
+;;Sun Sep  6 17:29:20 IST 2015
+;; unlike substitute subst is a tree operation
+(subst 'y 'x '(and (integerp x) (zerop (mod x 2))))
+(subst '- 'o '(a n o o (o o p)))
+(car (car (nthcdr 2 '(and (integerp x) (zerop (mod x 2))))))
+(defun our-subst (new old tree)
+  (if (equal tree old)
+      new
+      (if (atom tree)
+	  tree
+	  (cons (our-subst new old (car tree))
+		(our-subst new old (cdr tree))))))
 
+(defun our-substitute (new old tree)
+  (if (equal old tree)
+      new
+      (if (atom tree)
+	  tree
+	  (cons (if (equal (car tree) old)
+		     new
+		     (car tree))
+		(our-substitute new old (cdr tree))))))
 
+(our-subst 'x 'y '(y (y y)))
+(subst 'x 'y '(y (y y)))
+(substitute 'x 'y '(y (y y)))
+(our-substitute 'x 'y '(y (y y)))
+
+;;start Fri Sep 11 18:51:12 IST 2015
+;;3.10 sets
+(member 'p '(a n o o p))
+(member (car (cons 'p nil)) '(a n o o p))
+(eql 'p 'p)
+;;keyword, specific to the function there are keywords
+;; eg: for func 'member': 1.test 2.key
+(member 'p '(a n o o p) :test #'equal)
+(eql '(p) '(p))
+(member '(p) '((p) (p) (p)))
+(member '(p) '((p) (p) (p)) :test #'equal)
+(member 'p '((p) (p) (p)) :key #'car)
+(member 'p '((p) (p) (p)) :key #'car :test #'equal)
+;; order of keywords doesnt matter
+(member-if #'oddp '(2 3 4))
+(defun our-member-if (fn list)
+  (and (consp list)
+       (if (funcall fn (car list))
+	   list
+	   (our-member-if fn (cdr list)))))
+
+(our-member-if #'oddp '(2 3 4))
+(funcall #'oddp 3)
+
+;;adjoin union set-difference intersection
+;;adjoin is like conditional cons
+(adjoin 'z '(c d e))
+(union '(a n o) '(o p))
+(intersection '(a b c) '(b c d))
+(set-difference '(a b c d) '(c d))
+
+;;3.11 lists ~ squences
+(length '(a n o o p))
+;;subsequence ~ subseq
+(subseq '(a n o o p) 0 2)
+(subseq '(a n o o p) 1)
+;;reverse
+(reverse '(a n o o p))
+;;palindrome
+(let ((x '(m a d a m a)))
+  (equal x (reverse x)))
+
+(sort '(3 8 9 2 4) #'<)
+(defun nthmost (list n)
+  (nth (- n 1)
+       (copy-list (sort list #'<))))
+(nthmost '(1 2 3 4 8 0) 3)
+
+(every #'oddp '(1 3 5))
+(some #'evenp '(3 4 5))
+(every #'> '(2 3 4) '(1 2 2 9))
+;; end 19:46
+;;start Fri Sep 11 21:04:55 IST 2015
+;;3.12 stacks
+(setf lst '(b))
+(push 'a lst)
+lst
+(pop lst)
+lst
+(defun our-pop (list)
+  (let ((f (car list)))
+    (setf list (cdr list))
+    f))
+(our-pop '(a b))
+
+(setf x '(b))
+(push 'a x)
+x
+(setf y x)
+(pop x)
+x
+y
+
+(defun our-reverse (lst)
+  (let ((base nil))
+    (dolist (obj lst)
+      (push obj base))
+    base))
+(our-reverse '(a n o o p))
+;;adjoin like push-> pushnew
+(setf lst '(a b))
+(pushnew 'a lst)
+(pushnew 'e lst)
+;;note that the following gives error
+(push 'a '(b))
+(pushnew 'a '(a b))
+;;3.13 dotted list
+;;end Fri Sep 11 21:37:04 IST 2015
+
+;;start Sat Sep 12 13:16:02 IST 2015
+;;3.13 dotted list
+(defun proper-list? (lst)
+  (or (null lst)
+      (and (consp lst)
+	   (proper-list? (cdr lst)))))
+(setf lst (cons 'a 'b))
+(nthcdr 1 lst)
+(nthcdr 2 lst)
+(equal lst '(a . b))
+'(a. (b. (c. nil)))
+'(a . (b . (c . nil)))
+(cons 'a (cons 'b (cons 'c 'd)))
 
 
 
