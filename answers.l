@@ -1,5 +1,8 @@
+Note that a better version of solutions is available at
+https://github.com/pdelong42/ANSI_Common_Lisp-solutions/
 
-  P.Graham "ANSI Common LISP" Answer for Practice
+
+P.Graham "ANSI Common LISP" Answer for Practice
 
 ------------------------------------------------------------------------
 
