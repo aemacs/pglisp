@@ -41,7 +41,7 @@
 ;;lisp programs are expressed as lists, hence macroable
 '(my 3 "sons") ;; my is a symbol
 '(the list (a b c) has 3 elements)
-;; notice that one ' protects all elements from evaluatio
+;; notice that one ' protects all elements from evaluation
 ;; // write a lisp program that tracks your 10,000 hrs progress as a countdown
 '(hello 1)
 '(I am (+ 18 3) years old)
@@ -56,11 +56,11 @@ nil
 ;; this is a mistake why? nil is evaled as a function,so...
 ;; note list itself should not be called as bracket 
 ;;(list ('I 'am (+ 18 3) 'years 'old))
-;; the mistake is the un-nessesary bracketing? yes
+;; the mistake is the un-nessesary bracketing
 ;;cons builds lists, adds first argument at the beginning
 (cons 'a '(b c d))
 (cons "hello" "world")
-;;why the dot on evaluation?
+;;why the dot on evaluation?, because-read scroll below
 (cons ('a cons('b cons('c cons('d nil)))))
 ;; error is that there un-nessesary bracketing? yes improper bracketing as well
 (cons 'b (cons 'a nil))
@@ -90,6 +90,7 @@ t
 (listp '(a b c))
 (listp (cons "hello" "world"))
 (listp '("anoop" "gr"))
+(atom 'a)
 ;;(list ("anoop" "gr")) 
 ;; the problem was un-nesessary bracketing
 (list "anoop" "gr")
@@ -114,8 +115,7 @@ nil
 
 (if (listp '(she has an MBA))
     '(not my type)
-    '(she is interesting)
-    )
+    '(she is interesting))
 
 (if (listp "she is not an MBA")
     "not my type"
@@ -152,6 +152,7 @@ nil
 (and t 69)
 (and nil t)
 (and t (+ 60 9))
+;;second arg is returned
 ;; only first arg is false, second is not evaled
 (and nil (/ 2 0))
 (and t (/ 2 0))
@@ -273,7 +274,7 @@ x
 ;; NIL is the return value, without side effects there is
 ;;  no point in writing multiple expressions in a single defun
 
-;;is a variable name bound as global check with boundp
+;;Is a variable name bound as global check with boundp
 ;;  notice that variable name is a symbol, hence needs to be
 ;;    quoted as we learnt earlier
 (boundp '*glob*)
@@ -283,7 +284,7 @@ x
 ;;general assign:
 ;; setf name comes from set field
 (setf n 3)
-(format t "earlier defined n is ~% in fact global n=~A" n)
+(format t "~&earlier defined n is ~% in fact global n=~A" n)
 ;; setf is global unless already locally defined
 ;; setf is implicit global assignment
 (let ((x 3))
@@ -292,6 +293,7 @@ x
 (setf myname '(a n o o p))
 (setf x (list 'a 'b 'c))
 x
+(boundp 'x)
 ;; first arg of setf can be an expression
 (setf (car x) 'n)
 x
@@ -300,6 +302,7 @@ x
       b 2
       c 3)
 (+ a b c)
+(/ a (* b c))
 ;; unlike let setf doesnt require bracketing, just even no. of args
 ;;(setf (a 1 b 2 c 3))
 (setf a 1 b 2 c 9)
@@ -311,6 +314,7 @@ lst
 ;;non functional way, avoid
 (setf lst (remove 'a lst) )
 lst
+(delete 'a lst)
 ;;iteration;;
 
 (defun show-squares (start end)
@@ -323,7 +327,7 @@ lst
 (do ((i 1 (+ i 1))) ;varlist
     ((eql i 5) 'donewithloop) ;endlist
   ;body:
-  (format t "aaammm ~% "))
+  (format t "~&aaammm"))
 
 (do ((i 1 (+ i 1)))
     ((eql i 5) i)
@@ -367,7 +371,7 @@ lst
   (if (null lst)
       0
       (+ (our-length (cdr lst)) 1)))
-
+(our-length '(a n o o p gr))
 ;;functions as objects
 (function +)
 ;; abbreviated as sharp quote #'
@@ -397,7 +401,7 @@ lst
 ((lambda (x) (+ x 100)) 1)
 
 (funcall #'(lambda (x) (+ x 100))
-	 3)
+	 1)
 ;; this allows using functions w/o naming them
 
 ;;types: davids book has a nice tree diagram of various types
@@ -405,14 +409,17 @@ lst
 ;; checking object's type
 (typep 69 'fixnum)
 (typep 69 'integer)
+;;or
+(integerp 69)
 (typep 69 'rational)
 (typep 69 'real)
 (typep 69 'atom)
+;;or
+(atom 69)
 (typep 69 't)
 
 (typep + 'real)
 (typep + 'atom)
-
 
 ;; chap 2 exercise:
 (list 1 (+ 2 3))
@@ -551,7 +558,7 @@ x
 (eql x x)
 (eql x (cons 'a nil))
 ;; eql vs equal
-;; eql for lists means same list and same cons cells???
+;; eql for lists means same list and same cons cells
 ;; equal for lists means same print outputs
 (equal x (cons 'a nil))
 
@@ -591,7 +598,7 @@ y
 (defun our-copy-list (lst)
   (if (atom lst)
       lst
-      (cons (car lst) (our-copylist (cdr lst)))))
+      (cons (car lst) (our-copy-list (cdr lst)))))
 ;;unlike our-copy-tree we only recurse operate on cdrs
 
 (setf x '(a b c d)
@@ -626,131 +633,23 @@ y
 (compress 'a)
 (compress '(a a a c f d d d))
 
-
-;; my akward implementation
-(defun recur-check (lst count)
-  (let ((next (car lst)))
-    (if (null lst)
-	(list(build count now))
-	(if (eql next now)
-	    (recur-check (cdr lst) (+ count 1) now)
-	    (build count now)))))
-(recur-check '(a n o o p) 1 'a)
-
-(defun build (n atom)
-  (if (> n 1)
-      (list n atom)
-      atom))
-(build 1 'd)
-(build 3 's)
-
-(defun compr (lst count)
-  (let ((next (car (cdr lst))))
-    (if (null next)
-	(list (build count (car lst)))
-	(if (eql (car lst) next)
-	    (compr (cdr lst) (+ count 1))
-	    (cons (build count (car lst)) (compr (cdr lst) 1))))))
-
-(compr '(a a a c d) 1)
-(compr '(a a a c c d d d) 1)
-(compr '(a) 1)
-(compr 'a) ;; bug
-(defun compress (lst)
-  compr (lst 1))
-(consp '(a))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; retry run length compression
-(defun build (n atom)
-  (if (> n 1)
-      (list n atom)
-      atom))
-(build 2 'a)
-(build 1 'a)
-
-(defun compr (lst count)
-  (let ((first (car lst)) (second (car (cdr lst))))
-    (if (null second)
-	(list (build count first))
-	(if (eql first second)
-	    (compr (cdr lst) (+ count 1))
-	    (progn (format t "~A ~%" lst)
-		   (cons (build count first) (compr (cdr lst) 1))))))
-  (format t "~%but here list remains unaltered, i e functional approach ~A" lst))
-(compr '(a a a b c d d) 1)
-(cons 'a '(b))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; textbook style copycat
-
-(defun n-elts (elt n)
-  (if (> n 1)
-      (list n elt)
-      elt))
-(defun compr (elt n lst)
-  (if (null lst)
-      (list (n-elts elt n))
-      (let ((next (car lst)))
-	(if (eql next elt)
-	    (compr elt (+ n 1) (cdr lst))
-	    (cons (n-elts elt n)
-		  (compr next 1 (cdr lst)))))))
-(defun compress (x)
-  (if (consp x)
-      (compr (car x) 1 (cdr x))
-      x))
-(compress 'a)
-(compress '(a a a c f d d d))
-
 ;; uncompress
 (atom (car (compress '(a a a c f d d d))))
 (atom 'd)
-
-;; uncompress anoop version, its not purely functional
-;;  as base is getting modified??
-(defun ncons (times atom)
-  (let ((base nil))
-    (do ((i 1 (+ i 1)))
-	((> i times))
-;;      (format t "~Ahello " i)
-      (setf base (cons atom base)))
-    base))
- 
-(ncons 4 'a)
-
+;;clst looks like '((3 A) C F (3 D))
+(defun list-of (n elt)
+  (if (zerop n)
+      nil
+      (cons elt (list-of (- n 1) elt))))
+(list-of 3 'a)
 (defun uncompress (clst)
-  (do ((first (car clst)))
-      ((null first) 'donebaby)
-    (if (atom (car clst))
-	(setf base (cons first (uncompress (cdr clst))))
-	)))
-
-
-(defun uncompress (clst)
-  (setf first (car clst))
-  (if (null first) base)
-  (setf base (cons first (uncompress (cdr clst)))))
-  ;;return appro)
-(uncompress '(a e))
-(append '(a a a) '(c d))
-;; lets try compress uncompress my own one more time
-;;Sat Aug 29 22:27:42 IST 2015
-(defun ncons2 (lst)
-  (let ((base nil))
-    (do ((i 1 (+ i 1)))
-	((> i (car lst)))
-      (setf base (cons (second lst) base))
-      )
-    base))
-(ncons2 '(3 a))
-(defun uncompress (clst)
-  (if (consp clst)
-      (if (consp (car clst))
-	  (append (ncons2 (car clst)) (uncompress (cdr clst)))
-	  (cons (car clst) (uncompress (cdr clst)))
-	  )
-      clst))
-(uncompress '((2 a) b))
-
+  (let ((elt (car clst)))
+    (cond ((null elt) nil)
+	  ((atom elt) (cons elt
+			      (uncompress (cdr clst))))
+	  ((consp elt) (append (apply #'list-of elt)
+				 (uncompress (cdr clst)))))))
+(uncompress '((3 A) C F (3 D)))
 ;; back to textbook
 (nth 1 '(a n o o p))
 (nthcdr 1 '(a n o o p))
@@ -772,7 +671,6 @@ y
 (our-nthcdr 6 '(a n o p))
 
 (zerop 0)
-
 ;; return last cons in a list:
 (last '(a n o o p))
 ;; return last element of a list:
@@ -788,8 +686,13 @@ y
 (format t "pay the price | ")
 ;; end: Thu Sep  3 16:20:32 IST 2015
 
+;;enter a shell command in text:
+;;; C-u M-! date <return>
+;;; C-u M-! uptime <return>
+;;etc
+
 ;; start: Thu Sep  3 17:35:44 IST 2015
-;; mapping functions, calling on each and every member of a list
+;; mapping functions-calling on each and every member of a list
 ;; this is different from applying in bulk together on all members using apply:
 (apply #'+ '(1 1 1))
 (apply #'(lambda (x) (+ x 10)) '(1))
@@ -801,7 +704,7 @@ y
 ;; as the name suggests mapcar -> map the cars
 ;; mapcar 1 or more lists, returns result of applying function
 ;; to elements taken from each list until some list runs out
-(mapcar #'list '(a b c) '(1 2 3))
+(mapcar #'list '(a b c d) '(1 2 3))
 
 ;; maplist -> map successive cdrs
 (maplist #'(lambda (x) x) '(1 2 3))
@@ -820,7 +723,7 @@ y
       tr
       (cons (our-copy-tree (car tr))
 	    (our-copy-tree (cdr tr)))))
-;;(dtrace our-copy-tree)
+(dtrace our-copy-tree)
 ;; above recurses down both car and cdr
 ;;  such functions are called doubly recursive
 ;;  this is how most operations on lists are defined
@@ -901,15 +804,16 @@ y
 		     new
 		   (car tr))
 		 (our-subst old new (cdr tr))))))
+
 (our-subst 'x 'y '(y (y y)))
 (subst 'x 'y '(y (y y)))
 (substitute 'x 'y '(y (y y)))
+(our-substitute 'x 'y '(y (y y)))
 (our-substitute 'x 'y '(y (y y)))
 
 ;;start Fri Sep 11 18:51:12 IST 2015
 ;;3.10 sets
 (member 'p '(a n o o p))
-(member (car (cons 'p nil)) '(a n o o p))
 (eql 'p 'p)
 ;;keyword, specific to the function there are keywords
 ;; eg: for func 'member': 1.test 2.key
@@ -918,8 +822,8 @@ y
 (eql '(p) '(p))
 (member '(p) '((p) (p) (p)))
 (member '(p) '((p) (p) (p)) :test #'equal)
+(member '(p) '((p) (p) (p) q) :test-not #'equal)
 (member 'p '((p) (p) (p)) :key #'car)
-(member 'p '((p) (p) (p)) :key #'car :test #'equal)
 (member '(p) '(((p)) ((p)) ((p))) :key #'car :test #'equal)
 ;; order of keywords doesnt matter
 (member-if #'oddp '(2 3 4))
@@ -938,7 +842,7 @@ y
 ;; hence set operations with repeat elements exhibit
 ;;  wierd unpredictable results
 (adjoin 'z '(c d e))
-(union '(a n o) '(o p))
+(union '(a n) '(o p))
 (intersection '(a b c) '(b c d))
 (set-difference '(a b c d) '(c d))
 
@@ -954,6 +858,7 @@ y
   (equal x (reverse x)))
 
 (sort '(3 8 9 2 4) #'<)
+;;sort is destructive
 (defun nthmost (list n)
   (nth (- n 1)
        (copy-list (sort list #'<))))
@@ -997,8 +902,6 @@ y
 ;;note that the following gives error
 ;;(push 'a '(b))
 ;;(pushnew 'a '(a b))
-
-;;3.13 dotted list
 ;;end Fri Sep 11 21:37:04 IST 2015
 
 ;;start Sat Sep 12 13:16:02 IST 2015
@@ -1015,8 +918,9 @@ y
 '(a. (b. (c. nil)))
 '(a . (b . (c . nil)))
 (cons 'a (cons 'b (cons 'c 'd)))
-;;3.14 Assoc-list or alist ~ a list of conses
+;;3.14 Assoc-list or alist ~ a list of conses as elements
 (setf translate '((+ . "add") (- . "subtract")))
+(setf translate '((+ "add") (- "subtract")))
 (assoc '+ translate)
 (assoc '- translate)
 (assoc '* translate)
@@ -1035,10 +939,12 @@ y
 
 ;; start Sat Sep 12 17:45:18 IST 2015
 ;;3.15 shortest path
+;;to do in 2nd iteration, chapter 5 question 9 on shortest path
 (setf min '((a b c) (b c) (c d)))
 (cdr (assoc 'a min))
 
 ;;shortest path eg , still have not understood fully??
+;;anoop here
 (defun new-paths (path node net)
   (mapcar #'(lambda (n)
 	      (cons n path))
@@ -1687,6 +1593,9 @@ trt1
 (progn (format t "~&a")
        (format t "noop")
        (+ 20 1))
+;;destructuring bind ~ let for tree to tree
+(destructuring-bind (a (b c) . d) '(1 (2 3) . q)
+  (list a b c d))
 ;;block is like a progn with a name and an emergency exit
 (block head
   (format t "here we go...")
@@ -1732,7 +1641,7 @@ trt1
 (dolist (x '(a n o o p))
   (format t "~&alphabet - ~A" x))
 (dotimes (i 8 'ended)
-  (format t "~&*****"))
+  (format t "~&*****~A" i))
 ;;mapcar and mapc to traverse list
 (mapcar #'(lambda (x) (+ x 10))
 	'(1 2 3))
@@ -1746,15 +1655,603 @@ trt1
 (setf (gethash 'empty ht) nil)
 (gethash 'empty ht)
 (gethash 'truely-void ht)
-
+;;a fun that receives mutiple values from another:
 (multiple-value-bind (x y z) (values 1 0 69)
   (list x y z))
 (multiple-value-bind (sec min hour) (get-decoded-time)
   (format nil "~S:~S:~S" hour min sec))
 (multiple-value-call #'+ (values 1 0 69))
 (multiple-value-list (values 'a 'n 'o))
+;;;;aborts
+;;catch and throw
+(defun super ()
+  (catch 'aborte
+    (sub)
+    (format t "we will never see this")))
+(defun sub ()
+  (throw 'aborte 999))
+(super)
+;;error
+(progn
+  (error "oops!")
+  (format t "after the error."))
+(setf x 1)
+(catch 'abort
+  (unwind-protect
+       (throw 'abort 99)
+    (setf x 8)))
+x
+;;date-arithmetic
+(setf mon '(31 28 31 30 31 30 31 31 30 31 30 31))
+(reduce #'+ mon)
+(setf nom (reverse mon))
+(maplist (lambda (x)
+	   (apply #'+ x)) nom)
+(defconstant month
+      #(31 59 90 120 151 181 212 243 273 304 334 365))
+(defconstant yzero 2000)
+(defun leap? (y)
+  (and (zerop (mod y 4))
+       (or (zerop (mod y 400))
+	   (not (zerop (mod y 100))))))
+(leap? 2015)
+(defun date->num (d m y)
+  (+ (- d 1) (month->num m y) (year->num y)))
+(defun month->num (m y)
+  (+ (svref month (- m 1))
+     (if (and (> m 2)
+	      (leap? y))
+	 1
+	 0)))
+(defun year->num (y)
+  (let ((d 0))
+    (if (>= y yzero)
+	(dotimes (i (- y yzero) d)
+	  (incf d (year-days (+ yzero i))))
+	(dotimes (i (- yzero y) (- d))
+	  (incf d (year-days (+ y i)))))))
+(defun year-days (y)
+  (if (leap? y)
+      366
+      365))
+(defun num->date (n)
+  (multiple-value-bind (y left) (num-year n)
+    (multiple-value-bind (m d) (num-month left y)
+      (values d m y))))
+(defun num-year (n)
+  (if (< n 0)
+      (do* ((y (- yzero 1) (- y 1))
+	    (d (- (year-days y)) (- d (year-days y))))
+	   ((<= d n) (values y (- n d))))
+      (do* ((y yzero (+ y 1))
+	    (prev 0 d)
+	    (d (year-days y) (+ d (year-days y))))
+	   ((> d n) (values y (- n prev))))))
+(defun num-month (n y)
+  (if (leap? y)
+      (cond ((= n 59) (values 2 29))
+	    ((> n 59) (nmon (- n 1)))
+	    (t (nmon n)))
+      (nmon n)))
+(defun nmon (n)
+  (let ((m (position n month :test #'<)))
+    (values m (+ 1 (- n (svref month (- m 1)))))))
+(defun date+ (d m y n)
+  (num->date (+ (date->num d m y) n)))
+;;exercises
+;;1
+(setf y '(y))
+((lambda (x)
+   (cons x x)) (car y))
+(setf x '(1)
+      z 2)
+((lambda (w)
+   ((lambda (y)
+     (cons w y)) (+ w z))) (car x))
+;;2
+(defun mystery (x y)
+  (cond ((null y) nil)
+	((eql (car y) x) 0)
+	(t (let ((z (mystery x (cdr y))))
+	     (and z (+ z 1))))))
+(dtrace mystery)
+(mystery 'a '(n o o a a p))
+;;3
+(defun cond-sq (n)
+  (cond ((and (< 0 n 6)
+	      (integerp n)) n)
+	(t (* n n))))
+;;4
+;;case
 
+'(0 31 59 90 120 151 181 212 243 273 304 334)
+(mapcar #'(lambda (x y) (cons x (list y)))
+	 '(1 2 3 4 5 6 7 8 9 10 11 12)
+	 '(31 59 90 120 151 181 212 243 273 304 334 365))
 
+(defun mon->num (m y)
+  (+ (if (and (> m 2)
+	      (leap? y)) 1 0)
+     (case m
+       (1 0) (2 31) (3 59) (4 90) (5 120) (6 151) (7 181) (8 212) (9 243) (10 273) (11 304) (12 334) (otherwise 0))))
+
+;;5
+(find #\a "anoop")
+(car "anoop")
+(position #\a "anoopa" :start 3)
+(char "anoopa" 5)
+(dtrace precedes-helper)
+(precedes-helper #\a "eanoop" 0)
+(char "anoop" 8)
+(defun collect-positions (x v start)
+  (if (< start (length v))
+      (cons (position x v :start start)
+	    (collect-positions x v (+ start 1)))
+      '(end)))
+(dtrace collect-positions)
+(collect-positions #\a "panap" 0)
+(defun clean-positions (x v start)
+  (remove 0
+	  (remove 'end
+		  (remove nil
+			  (remove-duplicates
+			   (collect-positions x
+					      v
+					      start))))))
+(clean-positions #\a "panamaca" 0)
+(defun positions (x v start)
+  (mapcar #'(lambda (x) (- x 1))
+	  (clean-positions x v start)))
+(defun precedes (x v)
+  (remove-duplicates
+   (mapcar #'(lambda (p)
+	       (char v p))
+	   (positions x v 0))))
+(precedes #\a "abracadabra")
+;;5.iterative
+(cons #\b (cons #\a nil))
+(defun precedes (x v)
+  (do* ((p (position x v :start 0)
+	   (position x v :start (+ p 1)))
+	(ans nil))
+       ((null p) (remove-duplicates ans))
+    (if (> p 0)
+	(push (char v (- p 1))
+	      ans))))
+(precedes #\a "abracadabra")
+;;5.recursive.version2
+(defun precedes (x v)
+  (if (> (length v) 1)
+      (let* ((first (char v 0))
+	     (rest (subseq v 1))
+	     (chars (precedes x rest)))
+;;	(format t "~&let* body starts.........")
+	(and (eql (aref v 1) x)
+	     (not (member first chars))
+	     (push first chars))
+	(sort chars #'char<))
+      nil))
+(dtrace precedes)
+(precedes #\a "abrac")
+;;6.recursive
+(defun intersperse-helper (obj lst)
+  (if lst
+      (append (intersperse-helper obj (cdr lst))
+	      (cons obj
+		    (list (car lst))))))
+(defun intersperse (obj lst)
+  (reverse (cdr (intersperse-helper obj lst))))
+(intersperse '- '(a b c d e))
+;;6.iterative
+(defun intersperse (obj lst)
+  (do* ((lst1 lst (cdr lst1))
+	(first (car lst1) (car lst1))
+	(ans-helper (list (car lst1))
+		    (append (cons first (list obj))
+			      ans-helper)))
+       ((null lst1) (reverse (cdr (cdr ans-helper))))
+    ()))
+;;7.recursive(a)
+(defun diff1 (lst)
+  (if (> (length lst) 1)
+      (and (eql (- (second lst)
+		   (first lst))
+		1)
+	   (diff1 (cdr lst)))
+      t))
+(dtrace diff1)
+(diff1 '(1 2 3 4 5))
+;;7.do(b)
+(defun diff1 (lst)
+  (do* ((lst1 lst (cdr lst1))
+	(first (first lst1) (first lst1))
+	(second (second lst1) (second lst1))
+	(ans t (and ans
+		    (eql (- second first) 1))))
+       ((eql (length lst1) 2) ans)
+    ()))
+;;7.mapc return
+(defun diff1 (lst)
+  (block nil
+    (let ((first (car lst)))
+      (mapc #'(lambda (x)
+		(if (= (abs (- x first))
+		       1)
+		    (setf first x)
+		    (return-from nil 'falsed)))
+	    (cdr lst)))
+    t))
+(diff1 '(1 2 3 8))
+
+;;8
+;;i used &optional
+(defun foo (a &optional b)
+  (format t "~A and *** ~A" a b))
+(foo 8)
+;;
+(defun max&min (v &optional max min)
+  "v is a simple vector"
+  (cond ((zerop (length v)) (values max min))
+	(t (if (or (null min)
+		   (< (svref v 0) min))
+	       (setf min (svref v 0))
+	       (if (or (null max)
+		       (> (svref v 0) max))
+		   (setf max (svref v 0))))
+	   (max&min (subseq v 1) max min))))
+(dtrace max&min)
+(max&min #(1 2 3 8 -33))
+(vectorp #(1 2 3))
+(length #())
+;;9
+;;will do in second iteration
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;chapter6 functions
+(defun foo()
+  8)
+(foo)
+(fboundp 'foo)
+(symbol-function 'foo)
+(setf (symbol-function 'add2)
+      #'(lambda (x) (+ x 2)))
+(add2 8)
+(defun add2 (x)
+  (+ x 2))
+
+(setf lst0 '(a b c))
+;;the below TOGETHER make a synonym for car called primo
+(defun primo (lst) (car lst))
+(primo2 lst0)
+(defun (setf primo) (val lst)
+  (setf (car lst) val))
+;;test
+(let ((x (list 'a 'b 'c)))
+  (setf (primo x) 480)
+  x)
+
+;;labels ~ kind of let(()) for defining local funs
+(labels ((add10 (x) (+ x 10))
+	 (consa (x) (cons 'a x)))
+  (consa (add10 8)))
+;;labels is kind of closer to let*
+(labels ((len (lst)
+	   (if (null lst)
+	       0
+	       (+ (len (cdr lst)) 1))))
+  (len '(a b c d)))
+;;6.3parameter lists
+(defun our-funcall (fn &rest args)
+  (apply fn args))
+(our-funcall #'+ 1 1 8)
+(defun name (first &optional last)
+  (format t "~&hello ~A ~A" first last))
+(name 'anoop)
+;;default value for optional args
+(defun philosophy (thing &optional (property 'fun))
+  (list thing 'is property))
+(philosophy 'death 'bad)
+(philosophy 'death)
+;;keyword parameter ~ flexible optional parameter
+(defun keylist2 (a &key x y (z 69))
+  (list a x y z))
+(keylist2 1 :x 2 :z 4 :y 3)
+(keylist2 8)
+;;keyword collection using &rest and passing them to another   function
+(adjoin 'a '(a b c))
+(adjoin '(a) '((a) (b)))
+(adjoin '(a) '((a) (b)) :test #'equal)
+(defun our-adjoin (obj lst &rest args)
+  (if (apply #'member obj lst args)
+      lst
+      (cons obj lst)))
+;;above args work on the condition that that both our-adjoin &  member take same keywords
+(dtrace our-adjoin)
+(our-adjoin '(a) '((a) (b)))
+(our-adjoin '(a) '((a) (b)) :test #'equal)
+;;6.4 utilities
+(defun single? (lst)
+  (and (consp lst)
+       (null (cdr lst))))
+(single? '(a))
+(defun append1 (lst obj)
+  (append lst (list obj)))
+(append1 '(a b c) 'd)
+(defun map-int (fn n)
+  (let ((acc nil))
+    (dotimes (i n)
+      (push (funcall fn i) acc))
+    (nreverse acc)))
+(map-int #'identity 10)
+(map-int #'(lambda (x) (random 100)) 10)
+(defun filter (fn lst)
+  (let ((acc nil))
+    (dolist (x lst)
+      (let ((val (funcall fn x)))
+	(if val (push val acc))))
+    (nreverse acc)))
+(filter #'(lambda (x) (and (evenp x) (+ x 10)))
+	'(1 2 3 4 5 6 7 8 9))
+(defun most (fn lst)
+  (if (null lst)
+      (values nil nil)
+      (let* ((wins (car lst))
+	     (max (funcall fn wins)))
+	(dolist (obj (cdr lst))
+	  (let ((score (funcall fn obj)))
+	    (if (> score max)
+		(setf wins obj
+		      max score))))
+	(values wins max))))
+(most #'length '((a b c) (a b c d) (a a)))
+;;6.5closures
+;;returning a function, eg: combiner
+(defun combiner (x)
+  (typecase x
+    (number #'+)
+    (list #'append)
+    (t #'list)))
+(defun combine (&rest args)
+  (apply (combiner (car args))
+	 args))
+(combine 'a 'b 'c)
+(combine 8 9 3)
+;;lexical varible = var available only in its context
+;;free-lexical-variable = fun refers to variable defined outside it
+(setf fn (let ((i 3))
+	   #'(lambda (x) (+ x i))))
+(funcall fn 8)
+;;closure = a function that refers to a free lexical variable
+(defun add-to-member (num lst)
+  (mapcar #'(lambda (x)
+	      (+ x num))
+	  lst))
+(add-to-member 1 '(1 2 3))f
+;;in above, a closure is passed to mapcar
+
+;;explicit eg for closure:
+(defun make-adder (n)
+  #'(lambda (x)
+      (+ x n)))
+(setf add10 (make-adder 10))
+(funcall add10 8)
+
+(let ((counter 0))
+  (defun reset1()
+    (setf counter 0))
+  (defun stamp1()
+    (setf counter (+ counter 1))))
+;;the defuns are valid outside let, but counter variable is     is local to let and can only be accessed by reset1 or stamp1
+(list (stamp1) (stamp1) (reset1) (stamp1))
+;;eg:complemet using closures
+(funcall (complement #'oddp) 8)
+(defun our-complement (f)
+  #'(lambda (&rest args)
+      (not (apply f args))))
+;;notice in above f is free-lexical-variable
+
+;;6.6 eg:function builders, dylan inspired
+'(1 . (3))
+;;below , free variable are 'rest and 'fn1
+(defun compose (&rest fns)
+  (let ((fn1 (car (reverse fns)))
+	(rest (cdr (reverse fns))))
+    #'(lambda (&rest args)
+	(reduce #'(lambda (v f) (funcall f v))
+		rest
+		:initial-value (apply fn1 args)))))
+;;better looking with destructuring bind
+(defun compose (&rest fns)
+  (destructuring-bind (fn1 . rest) (reverse fns)
+    #'(lambda (&rest args)
+	(reduce #'(lambda (v f) (funcall f v))
+		rest
+		:initial-value (apply fn1 args)))))
+(mapcar (compose #'list #'round #'sqrt)
+	'(4 9 16 24))
+;;free variable below: 'disj, 'fn
+(defun disjoin (fn &rest fns)
+  (if (null fns)
+      fn
+      (let ((disj (apply #'disjoin fns)))
+	#'(lambda (&rest args)
+	    (or (apply fn args)
+		(apply disj args))))))
+;;or
+(defun disjoin (fn &rest fns)
+  (if (null fns)
+      fn
+      #'(lambda (&rest args)
+	  (or (apply fn args)
+	      (apply (apply #'disjoin fns) args)))))
+(trace disjoin)
+(mapcar (disjoin #'integerp #'symbolp)
+	'(a "a" 3 8))
+(dtrace disjoin)
+;;free variable below: 'fn, 'conj
+(defun conjoin (fn &rest fns)
+  (if (null fns)
+      fn
+      (let ((conj (apply #'conjoin fns)))
+	#'(lambda (&rest args)
+	    (and (apply fn args)
+		 (apply conj args))))))
+(mapcar (conjoin #'integerp #'oddp)
+	'(a "a" 3 8))
+(defun curry (fn &rest args)
+  #'(lambda (&rest args2)
+      (apply fn (append args args2))))
+;;right curry
+(defun rcurry (fn &rest args)
+  #'(lambda (&rest args2)
+      (apply fn (append args2 args))))
+(funcall (curry #'- 8) 9)
+(funcall (rcurry #'- 8) 9)
+;;dylan has fun 'always, which is lisp eq of 'constantly
+(funcall (constantly 8))
+(defun always (x)
+  #'(lambda (&rest args) x))
+(funcall (always 8))
+(apply (always 8) ())
+;;6.7 dynamic scope
+;;lexical scope, 'x always refers to the lexical envi of first
+;; let when foo is called
+(let ((x 10))
+  (defun foo ()
+    x))
+(let ((x 29))
+  (foo))
+;;dynamic scope, variable 'y is looked up in the envi in which
+;; foo is called
+(let ((y 10))
+  (defun foo2 ()
+    (declare (special y))
+    y))
+;;error:
+(let ((y 29))
+  (foo2))
+(let ((y 299))
+  (declare (special y))
+  (foo2))
+;;dont worry much about 'declare, they come under optimising
+;; code for compiler, can do later on
+;;above is the only instance where declare changes fun
+;; behaviour
+(foo)
+(setf x 89)
+(foo)
+(foo2)
+(setf y 69)
+(foo2)
+;;using defparameter makes code clearer, but dont worry now
+;;eg for use of dynamic scope using glob vars in lisp
+*print-base*
+(let ((*print-base* 2)
+      (x 8))
+  (format t "~A" x))
+;;6.8compilation
+(defun foo3 (x)
+  (+ x 1))
+;;in sbcl:
+(compiled-function-p #'foo3)
+;;above behaviour shows nil in clisp
+;; for clisp (compile 'foo3)
+;;usual way to compile lisp is to compile whole files with
+;;compile-file, not individual funs
+;;6.9 using recursion
+(defun fib (n)
+  (do ((i n (- i 1))
+       (f1 1 (+ f1 f2))
+       (f2 1 f1))
+      ((<= i 1) f1)))
+(fib 8)
+;;ch6 exercises
+;;6.1
+;;original tokens
+(defun tokens (str test start)
+  (let* ((p1 (position-if test str :start start))
+	 (p2 (position-if #'(lambda (c)
+			      (not (funcall test c)))
+			  str :start p1)))
+    (cons (subseq str p1 p2)
+	  (if p2
+	      (tokens str test p2)
+	      nil))))
+(defun constituent (c)
+  (and (graphic-char-p c)
+       (not (char= c #\ ))))
+(tokens "ab12 3cde.f" #'alpha-char-p 0)
+(tokens "ab12 3cde.f" #'constituent 0)
+;;modified
+(defun tokens (str &key (test #'constituent) (start 0))
+  (let* ((p1 (position-if test str :start start))
+	 (p2 (position-if #'(lambda (c)
+			      (not (funcall test c)))
+			  str :start p1)))
+    (cons (subseq str p1 p2)
+	  (if p2
+	      (tokens str :test test :start p2)
+	      nil))))
+(tokens "ab12 3cde.f")
+;;6.2
+;;original
+;;svref- simple vector ref
+(svref vec 0)
+;;eg: binary search for sorted vector2
+(defun bin-search (obj vec)
+  (let ((len (length vec)))
+    (and (not (zerop len))
+	 (finder obj vec 0 (- len 1)))))
+
+(defun finder (obj vec start end)
+  (format t "~&~A" (subseq vec start (+ end 1)))
+  (let ((range (- end start)))
+    (cond ((zerop range)
+	   (if (eql obj (svref vec start))
+	       obj
+	       nil))
+	  (t (let* ((mid (+ start (round (/ range 2))))
+		    (obj2 (svref vec mid)))
+	       (cond ((< obj obj2) (finder obj vec start (- mid 1)))
+		     ((> obj obj2) (finder obj vec (+ mid 1) end))
+;;		     ((eql obj obj2) obj)
+		     (t (finder obj vec mid mid))))))))
+(setf vectest (make-array '9 :initial-contents '(1 2 3 4 5 6 7 8 9)))
+vectest
+(bin-search 4 vectest)
+(bin-search 8 vectest)
+(dtrace bin-search finder)
+(find 'a '(c b a) :start 0 :end 3)
+;;modified
+(defun bin-search (obj vec &key (key #'identity) (test #'equal)
+			     (start 0) (end (- (length vec) 1)))
+  (let ((len (length vec)))
+    (and (not (zerop len))
+	 (finder obj vec start end :test1 test :key1 key))))
+
+(defun finder (obj vec start end &key (test1 #'equal) (key1 #'identity))
+  (format t "~&~A" (subseq vec start (+ end 1)))
+  (let ((range (- end start)))
+    (cond ((zerop range)
+	   (if (funcall test1 obj (funcall key1 (svref vec start)))
+	       obj
+	       nil))
+	  (t (let* ((mid (+ start (round (/ range 2))))
+		    (obj2 (funcall key1 (svref vec mid))))
+	       (cond ((< obj obj2) (finder obj vec start (- mid 1)))
+		     ((> obj obj2) (finder obj vec (+ mid 1) end))
+;;		     ((eql obj obj2) obj)
+		     (t (finder obj vec mid mid))))))))
+(setf vectest2 (make-array '6 :initial-contents '((0) (1) (2) (3) (4) (5))))
+vectest2
+(realp vectest2)
+(bin-search 4 vectest2 :key #'car)
+(bin-search 8 vectest)
+(dtrace bin-search finder)
+(defun foo (n)
+  (dotimes (i n nil)
+    (format t "(~A) " i)))
+(foo 6)
+;;as of dec2015
 
 
 
