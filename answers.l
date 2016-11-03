@@ -1313,7 +1313,8 @@ book.
     >                c (* c 10)
     >                d (* d 10))
     >          (format t "values in retain: a=~A, b=~A, c=~A, d=~A~%" a b c d))
-    >  (format t "values after retain: a=~A, b=~A, c=~A, d=~A~%" a b c d))
+    >  (format t "values after retain: a=~A, b=~A, c=~A, d=~A~%
+" a b c d))
     values before retain: a=0, b=1, c=2, d=3
     values in retain: a=0, b=10, c=20, d=30
     values after retain: a=0, b=1, c=2, d=30   ;values a b c becomes original 
